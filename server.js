@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("./db/db.json");
 const path = require("path");
 const fs = require("fs");
-const util = require("util");
+const ntid = require("./public/assets/js/helper")
 
 const app = express();
 const PORT = 3001;
@@ -19,40 +19,26 @@ app.get("/notes", (req,res) => {
     res.sendFile(path.join(__dirname, "public/notes.html"))
 })
 
-const writeToFile = (destination, content) => 
-    fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
-    err ? console.error(err) : console.info(`Data written to ${destination}`)
-    );
-const readAndAppend = (content, file) => {
-    fs.readFile(file, 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-        } else {
-            const parsedData = JSON.parse(data);
-            parsedData.push(content);
-            writeToFile(file, parsedData)
-        }
-    });
-};
-
-
 app.get("/api/notes", (req,res) =>{ 
-            res.json(db)
+    res.json(db)
 });
 
 app.post("/api/notes", (req,res) => {
-    const {title, text} = req.body;
-    if(title && text) {
-        const newNote = {
-            title,
-            text
-        };
-        readAndAppend(newNote, './db/db.json')
-    } else {
-        res.error('error in adding note')
-    }
-
-})
+   const {title, text} = req.body;
+    const newNote = {
+        title,
+        text,
+        id: ntid()
+    };
+    db.push(newNote);
+    const noteString = JSON.stringify(db);
+    fs.writeFile('./db/db.json', noteString, (err) => 
+    err
+        ? console.error(err)
+        : console.log('new Note was written to JSON file')
+    );
+    res.json(db)
+});
 
 app.delete("/api/notes", (req,res) => res.json(db))
 
