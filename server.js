@@ -41,6 +41,7 @@ app.post("/api/notes", (req,res) => {
 });
 
 app.delete("/api/notes", (req,res) => res.json(db))
+// struggling to find a solution here
 
 app.listen(PORT, () => {
     console.log(`app listening at http://localhost:${PORT}`)
